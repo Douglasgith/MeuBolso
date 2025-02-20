@@ -1,5 +1,5 @@
 from datetime import date 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 
@@ -19,7 +19,7 @@ class ControleMensalSchema(BaseModel):
     class Config:
         from_attributes = True 
 
-# 
+ 
 class RendimentoMensalShema(BaseModel):
     id: Optional[int] = None
     mes: str
@@ -27,3 +27,16 @@ class RendimentoMensalShema(BaseModel):
     
     class Config:
         from_attributes = True
+
+class UsuarioSchema(BaseModel):
+    nome: str
+    email: EmailStr
+    senha: str
+
+class UsuarioResponseSchema(BaseModel):
+    id: int
+    nome: str
+    email: EmailStr
+
+    class Config:
+        orm_mode = True

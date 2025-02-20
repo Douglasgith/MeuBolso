@@ -1,10 +1,13 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from src.infra.sqlalchemy.config.database import get_db, create_db_and_tables
 from src.infra.sqlalchemy.models.models import ControleMensal, Categoria, FormaDePagamento, Mes
 from src.infra.sqlalchemy.repositorios.controle_mensal import RepositorioControleMensal
 from src.infra.sqlalchemy.repositorios.rendimento_mensal import RepositorioRendimentoMensal
+from src.infra.sqlalchemy.repositorios.usuario_repositorio import RepositorioUsuario
 from src.schemas import schemas
+from src.schemas.schemas import UsuarioSchema, UsuarioResponseSchema
+from src.infra.sqlalchemy.models.models import Usuario
 from sqlalchemy.orm import Session
 from src.utils.exceptions import AppException
 
@@ -75,6 +78,8 @@ def buscar_controle_mensal_por_forma_de_pagamento(forma_de_pagamento: FormaDePag
     repositorio = RepositorioControleMensal(db)
     return repositorio.buscar_por_forma_de_pagamento(forma_de_pagamento)
 
+#Rota rendimento
+
 # Rota para criar um rendimento mensal
 @app.post("/rendimento/", response_model=schemas.RendimentoMensalShema)
 def criar_rendimento(rendimento: schemas.RendimentoMensalShema, db: Session = Depends(get_db)):
@@ -87,3 +92,19 @@ def listar_rendimentos(db: Session = Depends(get_db)):
     repositorio = RepositorioRendimentoMensal(db)
     return repositorio.listar_rendimentos()
 
+#Rota usuário
+
+#Rota para criar um usuário
+@app.post("/cadastro/", response_model=UsuarioResponseSchema)
+def cadastrar_usuario(usuario: UsuarioSchema, db : Session = Depends(get_db)):
+    repo = RepositorioUsuario(db)
+
+    if repo.buscar_por_email(usuario.email):
+        raise HTTPException(status_code=400, detail="E-mail já cadastrado")
+    
+    return repo.criar_usuario(usuario)
+#Rota listar usuario cadastrados
+@app.get("/usuarios/", response_model=list[UsuarioResponseSchema])
+def listar_usuarios(db: Session = Depends(get_db)):
+    repo = RepositorioUsuario(db)
+    return db.query(Usuario).all()

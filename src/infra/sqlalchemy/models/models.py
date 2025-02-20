@@ -66,3 +66,10 @@ class RendimentoMensal(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     mes: str = Field(sa_column_kwargs={"nullable": False})
     valor: float = Field(nullable=False)
+
+
+class Usuario(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nome: str = Field(max_length=255, nullable=False)
+    email: str = Field(max_length=255, nullable=False)
+    senha_hash: str = Field(max_length=255, nullable=False)
