@@ -1,7 +1,8 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 from datetime import date
+
 
 # Enums
 class Categoria(str, Enum):
@@ -50,7 +51,18 @@ class Mes(str, Enum):
     novembro = "novembro"
     dezembro = "dezembro"
 
-# Modelo usando SQLModel corretamente
+
+class Usuario(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nome: str = Field(max_length=255, nullable=False, unique=True)
+    email: str = Field(max_length=255, nullable=False, unique=True)
+    senha_hash: str = Field(max_length=255, nullable=False)
+    # Relação do usuario com controle mensal
+    controles_mensais: List["ControleMensal"] = Relationship(back_populates='usuario')
+    # Relação do usuario com rendimento mensal
+    rendimentos_mensais: List["RendimentoMensal"] = Relationship(back_populates='usuario')
+
+
 class ControleMensal(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     mes: Mes = Field(sa_column_kwargs={"nullable": False})
@@ -61,15 +73,14 @@ class ControleMensal(SQLModel, table=True):
     numero_de_parcelas: int = Field(default=1, nullable=False)
     qntd_parcelas_pagas: int = Field(default=0, nullable=False)
     valor_da_parcela: float = Field(default=0.0, nullable=False)
+    #Relação com usuário
+    usuario_id :int = Field(foreign_key="usuario.id", nullable=False)
+    usuario: Usuario = Relationship(back_populates="controles_mensais")
 
 class RendimentoMensal(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     mes: str = Field(sa_column_kwargs={"nullable": False})
     valor: float = Field(nullable=False)
-
-
-class Usuario(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    nome: str = Field(max_length=255, nullable=False)
-    email: str = Field(max_length=255, nullable=False)
-    senha_hash: str = Field(max_length=255, nullable=False)
+    #Relação com usuario
+    usuario_id : int = Field(foreign_key="usuario.id", nullable=False)
+    usuario: Optional[Usuario] = Relationship(back_populates="rendimentos_mensais")

@@ -1,5 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
+from src.infra.routers import auth, usuarios, controle_mensal, rendimento
 from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from src.infra.sqlalchemy.config.database import get_db, create_db_and_tables
 from src.infra.sqlalchemy.models.models import ControleMensal, Categoria, FormaDePagamento, Mes
 from src.infra.sqlalchemy.repositorios.controle_mensal import RepositorioControleMensal
@@ -15,6 +17,10 @@ from src.utils.exceptions import AppException
 
 
 app = FastAPI()
+app.include_router(auth.router)
+app.include_router(usuarios.router)
+app.include_router(controle_mensal.router)
+app.include_router(rendimento.router)
 
 @app.exception_handler(AppException)
 async def app_exception_handler(request, exc: AppException):
@@ -29,7 +35,7 @@ def on_startup():
 
 
 # Endpoints CRUD
-
+'''
 # Rota para criar um controle mensal
 @app.post("/controle-mensal/", response_model=schemas.ControleMensalSchema)
 def criar_controle_mensal(controle_mensal: schemas.ControleMensalSchema, db: Session = Depends(get_db)):
@@ -92,19 +98,4 @@ def listar_rendimentos(db: Session = Depends(get_db)):
     repositorio = RepositorioRendimentoMensal(db)
     return repositorio.listar_rendimentos()
 
-#Rota usuário
-
-#Rota para criar um usuário
-@app.post("/cadastro/", response_model=UsuarioResponseSchema)
-def cadastrar_usuario(usuario: UsuarioSchema, db : Session = Depends(get_db)):
-    repo = RepositorioUsuario(db)
-
-    if repo.buscar_por_email(usuario.email):
-        raise HTTPException(status_code=400, detail="E-mail já cadastrado")
-    
-    return repo.criar_usuario(usuario)
-#Rota listar usuario cadastrados
-@app.get("/usuarios/", response_model=list[UsuarioResponseSchema])
-def listar_usuarios(db: Session = Depends(get_db)):
-    repo = RepositorioUsuario(db)
-    return db.query(Usuario).all()
+'''
