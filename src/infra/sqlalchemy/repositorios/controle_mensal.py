@@ -25,7 +25,8 @@ class RepositorioControleMensal():
                 forma_de_pagamento=controle_mensal.forma_de_pagamento,
                 numero_de_parcelas=controle_mensal.numero_de_parcelas,
                 qntd_parcelas_pagas=controle_mensal.qntd_parcelas_pagas,
-                valor_da_parcela=controle_mensal.valor_da_parcela
+                valor_da_parcela=controle_mensal.valor_da_parcela,
+                usuario_id=controle_mensal.usuario_id
             )
             # Adiciona e persiste o objeto no banco de dados
             self.db.add(db_controle_mensal)

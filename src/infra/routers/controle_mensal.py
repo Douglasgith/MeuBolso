@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.config.database import get_db
 from src.schemas import schemas
@@ -16,7 +16,12 @@ def criar_controle_mensal(
     usuario=Depends(verificador_token)
 ):
     repositorio = RepositorioControleMensal(db)
+
+    if usuario is None:
+        raise HTTPException(status_code=401, detail="Usuário não autenticado")
+    
     controle_mensal.usuario_id = usuario.id
+    
     return repositorio.criar(controle_mensal)
 
 # Rota para listar todos os controles mensais
