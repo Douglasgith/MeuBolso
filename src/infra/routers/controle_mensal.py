@@ -19,8 +19,11 @@ def criar_controle_mensal(
 
     if usuario is None:
         raise HTTPException(status_code=401, detail="Usuário não autenticado")
-    
+      
+    # Preenche o usuário autenticado
     controle_mensal.usuario_id = usuario.id
+
+    print("DEBUG - Dados recebidos antes de salvar:", controle_mensal.model_dump())
     
     return repositorio.criar(controle_mensal)
 
@@ -28,7 +31,7 @@ def criar_controle_mensal(
 @router.get("/", response_model=list[schemas.ControleMensalSchema])
 def listar_controle_mensal(db: Session = Depends(get_db), usuario=Depends(verificador_token)):
     repositorio = RepositorioControleMensal(db)
-    return repositorio
+    return repositorio.listar()
 
 #Rota para buscar um controle mensal pelo id
 @router.get("/{controle_mensal_id}", response_model=schemas.ControleMensalSchema)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.config.database import get_db
 from src.schemas import schemas
@@ -14,9 +14,11 @@ def criar_rendimento(
     db: Session = Depends(get_db),
     usuario=Depends(verificador_token)
 ):
+    if usuario is None:
+        raise HTTPException(status_code=401, detail="Usuário não autenticado")
     repositorio = RepositorioRendimentoMensal(db)
-    rendimento.usuario_id = usuario.id
-    return repositorio.salvar_rendimento(rendimento)
+
+    return repositorio.salvar_rendimento(rendimento, usuario.id)
 
 # Rota para listar todos os rendimentos mensais
 @router.get("/", response_model=list[schemas.RendimentoMensalShema])

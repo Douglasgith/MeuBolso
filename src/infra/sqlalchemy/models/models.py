@@ -65,14 +65,17 @@ class Usuario(SQLModel, table=True):
 
 class ControleMensal(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    mes: Mes = Field(sa_column_kwargs={"nullable": False})
     data: date = Field(nullable=False)
+    mes: Optional[str] = Field(nullable=False)
     estabelecimento: str = Field(max_length=255, nullable=False)
     categoria: Categoria = Field(sa_column_kwargs={"nullable": False})
     forma_de_pagamento: FormaDePagamento = Field(sa_column_kwargs={"nullable": False})
-    numero_de_parcelas: int = Field(default=1, nullable=False)
-    qntd_parcelas_pagas: int = Field(default=0, nullable=False)
-    valor_da_parcela: float = Field(default=0.0, nullable=False)
+    parcelado: bool = Field(default=False, nullable=False)
+
+    numero_de_parcelas: Optional[int] = Field(default=1, nullable=False)
+    qntd_parcelas_pagas: Optional[int] = Field(default=0, nullable=False)
+    valor_da_parcela: Optional[float] = Field(default=0.0, nullable=False)
+    valor_total: Optional[float] = Field(nullable=False)
     #Relação com usuário
     usuario_id :int = Field(foreign_key="usuario.id", nullable=False)
     usuario: Usuario = Relationship(back_populates="controles_mensais")

@@ -18,14 +18,15 @@ class RepositorioControleMensal():
             #schemas.ControleMensalSchema: O registro criado, serializado no schema Pydantic.
             # Converte o schema Pydantic para um objeto SQLAlchemy
             db_controle_mensal = ControleMensal(
-                mes=controle_mensal.mes,
                 data=controle_mensal.data,
+                mes=controle_mensal.mes,
                 estabelecimento=controle_mensal.estabelecimento,
                 categoria=controle_mensal.categoria,
                 forma_de_pagamento=controle_mensal.forma_de_pagamento,
                 numero_de_parcelas=controle_mensal.numero_de_parcelas,
                 qntd_parcelas_pagas=controle_mensal.qntd_parcelas_pagas,
                 valor_da_parcela=controle_mensal.valor_da_parcela,
+                valor_total=controle_mensal.valor_total,
                 usuario_id=controle_mensal.usuario_id
             )
             # Adiciona e persiste o objeto no banco de dados
@@ -42,7 +43,7 @@ class RepositorioControleMensal():
         # Busca todos os registros no banco de dados
         controle_mensal = self.db.query(ControleMensal).all()
         # Converte a lista de objetos SQLAlchemy para uma lista de schemas Pydantic
-        return [schemas.ControleMensalSchema.from_orm(db_controle_mensal) for db_controle_mensal in controle_mensal]
+        return [schemas.ControleMensalSchema.model_validate(controle) for controle in controle_mensal]
 
     def buscar_por_id(self, controle_mensal_id: int) -> schemas.ControleMensalSchema:
         db_controle_mensal = self.db.query(ControleMensal).filter(ControleMensal.id == controle_mensal_id).first()

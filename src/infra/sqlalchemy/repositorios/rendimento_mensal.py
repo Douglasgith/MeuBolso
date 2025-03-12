@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.models.models import RendimentoMensal
-from src.schemas.schemas import RendimentoMensalShema
+from src.schemas.schemas import RendimentoMensalShema,UsuarioResponseSchema
 
 
 
@@ -9,10 +9,12 @@ class RepositorioRendimentoMensal:
     def __init__(self, db: Session):
         self.db = db
 
-    def salvar_rendimento(self, rendimento: RendimentoMensalShema) -> RendimentoMensal:
+    def salvar_rendimento(self, rendimento: RendimentoMensalShema, usuario_id: int) -> RendimentoMensal:
         novo_rendimento = RendimentoMensal(
             mes=rendimento.mes,
-            valor=rendimento.valor     
+            valor=rendimento.valor,
+            usuario_id=usuario_id
+              
         )
         self.db.add(novo_rendimento)
         self.db.commit()
