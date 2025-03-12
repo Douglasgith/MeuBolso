@@ -53,7 +53,7 @@ def delete_controle_mensal(controle_mensal_id: int, db: Session = Depends(get_db
 
 #Rota para buscar um controle mensal pelo mês
 @router.get("/controle-mensal/mes/{mes}", response_model=list[schemas.ControleMensalSchema])
-def buscar_controle_mensal_por_mes(mes: Mes, db: Session = Depends(get_db), usuario=Depends(verificador_token)):
+def buscar_controle_mensal_por_mes(mes: str, db: Session = Depends(get_db), usuario=Depends(verificador_token)):
     repositorio = RepositorioControleMensal(db)
     return repositorio.buscar_por_mes(mes)
 

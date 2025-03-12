@@ -73,10 +73,10 @@ class RepositorioControleMensal():
         return {"detail": "Registro deletado com sucesso"}
 
     def buscar_por_mes(self, mes: str) -> list[schemas.ControleMensalSchema]:
+        mes_str = mes.zfill(2)
         db_controle_mensal = self.db.query(ControleMensal).filter(ControleMensal.mes == mes).all()
-        print (db_controle_mensal)
-        if db_controle_mensal is None or len(db_controle_mensal) == 0:
-            raise ErroNaBuscaPorMesException()
+        if not db_controle_mensal:
+         raise ErroNaBuscaPorMesException()
         return db_controle_mensal
     
     def buscar_por_categoria(self, categoria: str) -> list[schemas.ControleMensalSchema]:
