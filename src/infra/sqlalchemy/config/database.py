@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Boolean
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, create_engine, Session
 import os
@@ -10,13 +10,16 @@ class Base(SQLModel):
     Classe base para todos os modelos do SQLAlchemy.
     """
     pass
+ 
 
 # Criar caminho absoluto para o banco de dados
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Obtém o diretório atual
 DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'gastos.db')}"  # Caminho absoluto
 
 # Criar engine do SQLAlchemy
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False}, echo=True)  # echo=True para debug
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False}, echo=True) # echo=True para debug
+
+
 
 # Criar a sessão
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

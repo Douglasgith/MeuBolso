@@ -1,10 +1,8 @@
 import re
 from datetime import date 
-from pydantic import BaseModel, EmailStr, validator, field_validator
+from pydantic import BaseModel, EmailStr, validator, field_validator, model_validator
 from typing import Optional
 
-
-from src.infra.sqlalchemy.models.models import Categoria, FormaDePagamento, Mes
 
 class ControleMensalSchema(BaseModel):
     id: Optional[int] = None
@@ -13,7 +11,7 @@ class ControleMensalSchema(BaseModel):
     estabelecimento: str 
     categoria: str
     forma_de_pagamento: str
-    parcelado: bool
+    parcelado: bool 
 
     numero_de_parcelas: Optional[int] = 1 
     qntd_parcelas_pagas: Optional[int] = 0 
@@ -40,25 +38,33 @@ class ControleMensalSchema(BaseModel):
             return mes
         return value
     
-    
-    # Calcula o valor da parcela baseado no valor total e no numero de parcelas
-    @field_validator('valor_da_parcela', mode='before')
+    # Adicionar este validador no seu schema:
+    @field_validator("parcelado", mode="before")
     @classmethod
-    def calcular_valor_parcela(cls,value, info):
-        if info.data.get('parcelado', False):
-            valor_total = info.data.get('valor_total', 0.0)
-            numero_de_parcelas = info.data.get('numero_de_parcelas', 1)
-            if valor_total > 0 and numero_de_parcelas > 0:
-                return valor_total / numero_de_parcelas
-        return info.data.get('valor_total', 0.0)
+    def validar_parcelado(cls, value):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() == "true"
+        return bool(value)
+
+    
+    # Calcula o valor da parcela baseado no valor total e no numero de parcelas:
+    @model_validator(mode="after") # < valida todos os campos apos serem processados
+    def calcular_valor_parcela(self): 
+        if self.parcelado and self.numero_de_parcelas > 1:
+            self.valor_da_parcela = round(self.valor_total / self.numero_de_parcelas, 2)
+        return self
 
     # Se a compra não for parcelada, o numero de parcelas é 1 e a quantidade de parcelas pagas é 0
-    @field_validator('numero_de_parcelas','qntd_parcelas_pagas', mode='before')
+    @field_validator("numero_de_parcelas", "qntd_parcelas_pagas", mode="before")
     @classmethod
     def ajustar_parcelas(cls, value, info):
-        if info.data.get('parcelado') is False:
-            return 1 if info.field_name == 'numero_de_parcelas' else 0
+        parcelado = info.data.get("parcelado", None)  # Certifique-se de pegar o valor correto
+        if parcelado is False:
+            return 1 if info.field_name == "numero_de_parcelas" else 0
         return value
+
     
     #Valida se o valor_total foi fornecido e é positivo.
     @field_validator('valor_total', mode='before')

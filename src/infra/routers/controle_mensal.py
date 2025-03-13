@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.config.database import get_db
 from src.schemas import schemas
 from src.infra.sqlalchemy.repositorios.controle_mensal import RepositorioControleMensal
-from src.infra.sqlalchemy.models.models import ControleMensal, Categoria, FormaDePagamento, Mes
+from src.infra.sqlalchemy.models.models import  Categoria, FormaDePagamento
 from src.infra.routers.auth import verificador_token
 
 router = APIRouter(prefix="/controle-mensal", tags=["Controle Mensal"])
@@ -16,15 +16,10 @@ def criar_controle_mensal(
     usuario=Depends(verificador_token)
 ):
     repositorio = RepositorioControleMensal(db)
-
     if usuario is None:
-        raise HTTPException(status_code=401, detail="Usuário não autenticado")
-      
+        raise HTTPException(status_code=401, detail="Usuário não autenticado") 
     # Preenche o usuário autenticado
-    controle_mensal.usuario_id = usuario.id
-
-    print("DEBUG - Dados recebidos antes de salvar:", controle_mensal.model_dump())
-    
+    controle_mensal.usuario_id = usuario.id 
     return repositorio.criar(controle_mensal)
 
 # Rota para listar todos os controles mensais

@@ -2,6 +2,7 @@ from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
 from typing import Optional, List
 from datetime import date
+from pydantic import validator
 
 
 # Enums
@@ -71,6 +72,7 @@ class ControleMensal(SQLModel, table=True):
     categoria: Categoria = Field(sa_column_kwargs={"nullable": False})
     forma_de_pagamento: FormaDePagamento = Field(sa_column_kwargs={"nullable": False})
     parcelado: bool = Field(default=False, nullable=False)
+
 
     numero_de_parcelas: Optional[int] = Field(default=1, nullable=False)
     qntd_parcelas_pagas: Optional[int] = Field(default=0, nullable=False)

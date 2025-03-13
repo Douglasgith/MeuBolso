@@ -2,8 +2,7 @@ from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.models.models import ControleMensal
 from src.schemas import schemas
 from fastapi import HTTPException
-from src.utils.exceptions import RegistroNaoEncontradoException, ErroNoBancoDeDadosException, ErroNaBuscaPorMesException
-
+from src.utils.exceptions import RegistroNaoEncontradoException
 
 
 class RepositorioControleMensal(): 
@@ -23,6 +22,7 @@ class RepositorioControleMensal():
                 estabelecimento=controle_mensal.estabelecimento,
                 categoria=controle_mensal.categoria,
                 forma_de_pagamento=controle_mensal.forma_de_pagamento,
+                parcelado=controle_mensal.parcelado,
                 numero_de_parcelas=controle_mensal.numero_de_parcelas,
                 qntd_parcelas_pagas=controle_mensal.qntd_parcelas_pagas,
                 valor_da_parcela=controle_mensal.valor_da_parcela,
@@ -33,6 +33,7 @@ class RepositorioControleMensal():
             self.db.add(db_controle_mensal)
             self.db.commit()
             self.db.refresh(db_controle_mensal)
+
             # Converte o objeto SQLAlchemy de volta para o schema Pydantic
             return schemas.ControleMensalSchema.from_orm(db_controle_mensal)
 
@@ -73,10 +74,13 @@ class RepositorioControleMensal():
         return {"detail": "Registro deletado com sucesso"}
 
     def buscar_por_mes(self, mes: str) -> list[schemas.ControleMensalSchema]:
-        mes_str = mes.zfill(2)
+        
+        if not mes.isdigit() or not (1 <= int(mes) <= 12): # <-- Garante que o mês seja um número entre 1 e 12
+         raise HTTPException(status_code=400, detail="O mês deve ser um número entre '1' e '12' ")
+        mes_str = mes.zfill(2) #<-- # Garante que fique com dois dígitos
         db_controle_mensal = self.db.query(ControleMensal).filter(ControleMensal.mes == mes).all()
         if not db_controle_mensal:
-         raise ErroNaBuscaPorMesException()
+         raise HTTPException(status_code=404, detail="Nenhum registro encontrado para o mês informado.")
         return db_controle_mensal
     
     def buscar_por_categoria(self, categoria: str) -> list[schemas.ControleMensalSchema]:

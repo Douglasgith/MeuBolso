@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.models.models import RendimentoMensal
-from src.schemas.schemas import RendimentoMensalShema,UsuarioResponseSchema
+from src.schemas.schemas import RendimentoMensalShema
 
 
 
